@@ -1,0 +1,19 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "Tour Travel Website w/ Backend",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js"
+  },
+  "author": "Tejas Patade",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^5.13.15",
+    "morgan": "^1.10.0",
+    "validator": "^13.9.0"
+  }
+}
