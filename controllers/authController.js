@@ -53,6 +53,8 @@ exports.login = catchAsync(async (req, res, next) => {
 	console.log(user);
 	// -> Send JWT to client
 	const token = "";
+
+	// Response 200: OK
 	res.status(200).json({
 		status: "success",
 		token,
