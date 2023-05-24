@@ -50,6 +50,13 @@ userSchema.pre("save", async function (next) {
 	next();
 });
 
+// Defining instance method on schema to compare password while logging in an user
+userSchema.methods.passwordCheck = async function (inputPasswd, userPasswd) {
+	// Check the inputted password with actual password from db
+	return await bcrypt.compare(inputPasswd, userPasswd);
+};
+
+// Model Using the final schema
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
