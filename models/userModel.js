@@ -63,8 +63,16 @@ userSchema.methods.passwordCheck = async function (inputPasswd, userPasswd) {
 // JWT was signed
 userSchema.methods.changedPassword = function (JWTTimeStamp) {
 	if (this.passwordChangedAt) {
-		console.log(JWTTimeStamp, this.passwordChangedAt);
+		// Convert passwordChangetAt to date format
+		const passwordChangedTime = parseInt(
+			this.passwordChangedAt.getTime() / 1000,
+			10
+		);
+		// Changed After JWT Issued: True
+		return JWTTimeStamp < passwordChangedTime;
 	}
+	// Not Changed after JWT Issued: False
+	// Also False if passwordChangedAt not defined for the document
 	return false;
 };
 

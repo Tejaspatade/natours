@@ -90,6 +90,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 				401
 			)
 		);
+
 	// Verify the Token
 	const payload = await promisify(jwt.verify)(token, process.env.JWT_PVT_KEY);
 
@@ -103,10 +104,17 @@ exports.protect = catchAsync(async (req, res, next) => {
 			)
 		);
 
-	console.log("Reached Here");
 	// Check if user changed password after token issuing
-	user.changedPassword(payload.iat);
+	if (user.changedPassword(payload.iat)) {
+		return next(
+			new AppError(
+				"Password was changed after Logging In. Please Login Again.",
+				401
+			)
+		);
+	}
 
-	// Grant Access to the resource requested
+	// Grant Access to the protected resource requested
+	req.user = user;
 	next();
 });
