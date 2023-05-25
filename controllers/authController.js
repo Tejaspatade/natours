@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
@@ -27,6 +28,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
 		email: req.body.email,
 		password: req.body.password,
 		passwordConfirm: req.body.passwordConfirm,
+		passwordChangedAt: req.body.passwordChangedAt,
 	});
 
 	// JWT
@@ -73,5 +75,38 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // Middleware to protect unaouthorised access to certain routes
 exports.protect = catchAsync(async (req, res, next) => {
+	// Check if token exists in request
+	let token;
+	if (
+		req.headers.authorization &&
+		req.headers.authorization.startsWith("Bearer")
+	) {
+		token = req.headers.authorization.split(" ")[1];
+	}
+	if (!token)
+		return next(
+			new AppError(
+				"You Are not Logged in! Please Login to gain access",
+				401
+			)
+		);
+	// Verify the Token
+	const payload = await promisify(jwt.verify)(token, process.env.JWT_PVT_KEY);
+
+	// Check if user still exists
+	const user = await User.findById(payload.id);
+	if (!user)
+		return next(
+			new AppError(
+				"The user belonging to given token doesn't exist!",
+				401
+			)
+		);
+
+	console.log("Reached Here");
+	// Check if user changed password after token issuing
+	user.changedPassword(payload.iat);
+
+	// Grant Access to the resource requested
 	next();
 });

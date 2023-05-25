@@ -35,6 +35,9 @@ const userSchema = new mongoose.Schema({
 			message: "Passwords are not the same",
 		},
 	},
+	passwordChangedAt: {
+		type: Date,
+	},
 });
 
 // Mongoose Middlewares
@@ -54,6 +57,15 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.passwordCheck = async function (inputPasswd, userPasswd) {
 	// Check the inputted password with actual password from db
 	return await bcrypt.compare(inputPasswd, userPasswd);
+};
+
+// Defining instance method on schema to check whether user changed password after
+// JWT was signed
+userSchema.methods.changedPassword = function (JWTTimeStamp) {
+	if (this.passwordChangedAt) {
+		console.log(JWTTimeStamp, this.passwordChangedAt);
+	}
+	return false;
 };
 
 // Model Using the final schema
