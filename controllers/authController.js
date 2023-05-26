@@ -95,8 +95,8 @@ exports.protect = catchAsync(async (req, res, next) => {
 	const payload = await promisify(jwt.verify)(token, process.env.JWT_PVT_KEY);
 
 	// Check if user still exists
-	const user = await User.findById(payload.id);
-	if (!user)
+	const currUser = await User.findById(payload.id);
+	if (!currUser)
 		return next(
 			new AppError(
 				"The user belonging to given token doesn't exist!",
@@ -105,7 +105,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 		);
 
 	// Check if user changed password after token issuing
-	if (user.changedPassword(payload.iat)) {
+	if (currUser.changedPassword(payload.iat)) {
 		return next(
 			new AppError(
 				"Password was changed after Logging In. Please Login Again.",
@@ -115,6 +115,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 	}
 
 	// Grant Access to the protected resource requested
-	req.user = user;
+	req.user = currUser;
 	next();
 });
