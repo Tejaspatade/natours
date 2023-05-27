@@ -74,6 +74,24 @@ exports.login = catchAsync(async (req, res, next) => {
 	});
 });
 
+// POST request for forgotten password functionality
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+	// Get User with email from request
+	const user = await User.findOne({ email: req.body.email });
+	// 404: Not Found
+	if (!user)
+		return next(new AppError("User with that email id doesn't exist", 404));
+
+	// Generate Random Reset token
+	const resetToken = user.createPasswdResetToken();
+	// Reflect changes made in DB
+	user.save({ validateBeforeSave: false });
+
+	// Send it to user's email
+});
+// POST request for resetting forgotten password
+exports.resetPassword = (req, res, next) => {};
+
 // Middleware to protect unaouthorised access to certain routes (Authentication)
 exports.protect = catchAsync(async (req, res, next) => {
 	// Check if token exists in request

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
@@ -43,6 +44,8 @@ const userSchema = new mongoose.Schema({
 	passwordChangedAt: {
 		type: Date,
 	},
+	passwordResetToken: String,
+	passwordResetExpires: Date,
 });
 
 // Mongoose Middlewares
@@ -79,6 +82,25 @@ userSchema.methods.changedPassword = function (JWTTimeStamp) {
 	// Not Changed after JWT Issued: False
 	// Also False if passwordChangedAt not defined for the document
 	return false;
+};
+
+//
+userSchema.methods.createPasswdResetToken = function () {
+	// Reset Token Generated
+	const resetToken = crypto.randomBytes(32).toString("hex");
+
+	// Reset Token Encrypted and also stored in DB
+	this.passwordResetToken = crypto
+		.createHash("sha256")
+		.update(resetToken)
+		.digest("hex");
+
+	console.log(resetToken, this.passwordResetToken);
+	// Token expires in 10 minutes from when issued
+	this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+	// Send Back the Plaintext Token
+	return resetToken;
 };
 
 // Model Using the final schema
