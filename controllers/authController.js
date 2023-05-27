@@ -29,6 +29,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
 		password: req.body.password,
 		passwordConfirm: req.body.passwordConfirm,
 		passwordChangedAt: req.body.passwordChangedAt,
+		role: req.body.role,
 	});
 
 	// JWT
@@ -73,7 +74,7 @@ exports.login = catchAsync(async (req, res, next) => {
 	});
 });
 
-// Middleware to protect unaouthorised access to certain routes
+// Middleware to protect unaouthorised access to certain routes (Authentication)
 exports.protect = catchAsync(async (req, res, next) => {
 	// Check if token exists in request
 	let token;
@@ -118,3 +119,22 @@ exports.protect = catchAsync(async (req, res, next) => {
 	req.user = currUser;
 	next();
 });
+
+// Middleware to restrict access of a resource to specific roles only (Authorization)
+exports.restrict = (...roles) => {
+	// This function actually returns the middleware with req, res, next
+	// Since we wanted to pass it additional params(roles) we return this function
+	// after calling restrict
+	return (req, res, next) => {
+		// 403: Forbidden
+		if (!roles.includes(req.user.role))
+			return next(
+				new AppError(
+					"You do not have permission to perform this action.",
+					403
+				)
+			);
+		// Allow access since the role is authorized
+		next();
+	};
+};

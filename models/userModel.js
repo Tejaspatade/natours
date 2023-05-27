@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
 		min: [8, "Password should be atleast 5 characters long"],
 		select: false,
 	},
+	role: {
+		type: String,
+		enum: ["user", "admin"],
+		default: "user",
+	},
 	photo: {
 		type: String,
 	},
