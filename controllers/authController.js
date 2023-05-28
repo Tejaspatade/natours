@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
+const crypto = require("crypto");
 
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const sendEmail = require("../utils/email");
 
 // Utility Function to create JWT
 const signJWT = (id) => {
@@ -84,13 +86,74 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 	// Generate Random Reset token
 	const resetToken = user.createPasswdResetToken();
-	// Reflect changes made in DB
-	user.save({ validateBeforeSave: false });
+	// Reflect changes made in DB, disable validators since only the reset token need to be saved
+	await user.save({ validateBeforeSave: false });
 
 	// Send it to user's email
+	// URL to be sent to user
+	const resetURL = `${req.protocol}://${req.get(
+		"host"
+	)}/api/v1/users/reset-password/${resetToken}`;
+	// Message to be sent to user
+	const message = `Forgot your password? Submit a PATCH request with new password and passwordConfirm to ${resetURL}.\n If you didnt forget password, please ignore this email.`;
+	try {
+		// Mail sent using nodemailer
+		await sendEmail({
+			email: user.email,
+			subject:
+				"Reset Forgotten Password with Token(valid for 10 minutes)",
+			message,
+		});
+
+		// Response to client as well
+		// 200: OK
+		res.status(200).json({
+			status: "success",
+			message: "Token sent to Email",
+		});
+	} catch (error) {
+		// Clear the Reset Token Fields from DB
+		user.createPasswdResetToken = undefined;
+		user.createPasswdResetExpires = undefined;
+		await user.save({ validateBeforeSave: false });
+
+		// 500: Internal Server Error
+		return next(new AppError("There was an error sending the email", 500));
+	}
 });
-// POST request for resetting forgotten password
-exports.resetPassword = (req, res, next) => {};
+
+// PATCH request for resetting forgotten password
+exports.resetPassword = catchAsync(async (req, res, next) => {
+	// Get User from resetToken
+	const hashedToken = crypto
+		.createHash("sha256")
+		.update(req.params.token)
+		.digest("hex");
+	const user = await User.findOne({
+		createPasswdResetToken: hashedToken,
+		createPasswdResetExpires: { $gt: Date.now() },
+	});
+
+	// User exists & token hasn't expired, reset passsword
+	if (!user)
+		//	400: Bad Request
+		return next(new AppError("Token is invalid or has expired", 400));
+	user.password = req.body.password;
+	user.passwordConfirm = req.body.passwordConfirm;
+	user.createPasswdResetToken = undefined;
+	user.createPasswdResetExpires = undefined;
+	await user.save();
+
+	// Update changedPasswordAt field in DB
+
+	// Log in User with JWT
+	const token = signJWT(user._id);
+	// Response 200: OK
+	res.status(200).json({
+		status: "success",
+		token,
+	});
+});
 
 // Middleware to protect unaouthorised access to certain routes (Authentication)
 exports.protect = catchAsync(async (req, res, next) => {
@@ -103,6 +166,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 		token = req.headers.authorization.split(" ")[1];
 	}
 	if (!token)
+		// 401: Unauthorized
 		return next(
 			new AppError(
 				"You Are not Logged in! Please Login to gain access",
@@ -117,6 +181,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 	const currUser = await User.findById(payload.id);
 	if (!currUser)
 		return next(
+			// 401: Unauthorized
 			new AppError(
 				"The user belonging to given token doesn't exist!",
 				401
@@ -126,6 +191,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 	// Check if user changed password after token issuing
 	if (currUser.changedPassword(payload.iat)) {
 		return next(
+			// 401: Unauthorized
 			new AppError(
 				"Password was changed after Logging In. Please Login Again.",
 				401
