@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
 	passwordResetExpires: Date,
 });
 
-// Mongoose Middlewares
+// ------------- Mongoose Middlewares -------------
 // Pre-Save: Always Encrypt Password before storing in DB
 userSchema.pre("save", async function (next) {
 	// If password wasn't modified, dont encrypt it again
@@ -71,7 +71,7 @@ userSchema.pre("save", async function (next) {
 	next();
 });
 
-// Instance Methods
+// ------------- Instance Methods -------------
 // Defining instance method on schema to compare password while logging in an user
 userSchema.methods.passwordCheck = async function (inputPasswd, userPasswd) {
 	// Check the inputted password with actual password from db
@@ -95,7 +95,7 @@ userSchema.methods.changedPassword = function (JWTTimeStamp) {
 	return false;
 };
 
-//
+// Random Token to reset password
 userSchema.methods.createPasswdResetToken = function () {
 	// Reset Token Generated
 	const resetToken = crypto.randomBytes(32).toString("hex");
@@ -106,7 +106,6 @@ userSchema.methods.createPasswdResetToken = function () {
 		.update(resetToken)
 		.digest("hex");
 
-	console.log(resetToken, this.passwordResetToken);
 	// Token expires in 10 minutes from when issued
 	this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
@@ -114,7 +113,7 @@ userSchema.methods.createPasswdResetToken = function () {
 	return resetToken;
 };
 
-// Model Using the final schema
+// ------------- Model Using the final schema -------------
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
