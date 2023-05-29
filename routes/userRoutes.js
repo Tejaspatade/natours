@@ -1,6 +1,6 @@
 const express = require("express");
 // prettier-ignore
-const {getAllUsers, getUserById, updateUser, deleteUser, createUser, updateMe} = require('./../controllers/userController');
+const {getAllUsers, getUserById, updateUser, deleteUser, createUser, updateMe, deleteMe} = require('./../controllers/userController');
 const {
 	signUp,
 	login,
@@ -23,6 +23,7 @@ router.post("/forgot-password", forgotPassword);
 router.patch("/reset-password/:token", resetPassword);
 router.patch("/updateMyPassword", protect, updatePassword);
 router.patch("/updateMe", protect, updateMe);
+router.patch("/deleteMe", protect, deleteMe);
 
 // Routes for Admin Stuff
 router.route("/").get(getAllUsers).post(createUser);

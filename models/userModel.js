@@ -46,9 +46,14 @@ const userSchema = new mongoose.Schema({
 	},
 	passwordResetToken: String,
 	passwordResetExpires: Date,
+	active: {
+		type: Boolean,
+		default: true,
+		select: false,
+	},
 });
 
-// ------------- Mongoose Middlewares -------------
+// ------------- Mongoose Document Middlewares -------------
 // Pre-Save: Always Encrypt Password before storing in DB
 userSchema.pre("save", async function (next) {
 	// If password wasn't modified, dont encrypt it again
@@ -68,6 +73,14 @@ userSchema.pre("save", async function (next) {
 
 	// Otherwise we want to update passwordChangedAt
 	this.passwordChangedAt = Date.now() - 1000;
+	next();
+});
+
+// ------------- Mongoose Query Middlewares -------------
+// Pre-Find Query Middleware to exclude deactivated users
+userSchema.pre(/^find/, function (next) {
+	// this points to query obj, so add on filtering find()
+	this.find({ active: { $ne: false } });
 	next();
 });
 
