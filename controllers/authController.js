@@ -130,8 +130,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 		.update(req.params.token)
 		.digest("hex");
 	const user = await User.findOne({
-		createPasswdResetToken: hashedToken,
-		createPasswdResetExpires: { $gt: Date.now() },
+		passwordResetToken: hashedToken,
+		passwordResetExpires: { $gt: Date.now() },
 	});
 
 	// User exists & token hasn't expired, reset passsword
@@ -140,8 +140,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 		return next(new AppError("Token is invalid or has expired", 400));
 	user.password = req.body.password;
 	user.passwordConfirm = req.body.passwordConfirm;
-	user.createPasswdResetToken = undefined;
-	user.createPasswdResetExpires = undefined;
+	user.passwordResetToken = undefined;
+	user.passwordResetExpires = undefined;
 	await user.save();
 
 	// Update changedPasswordAt field in DB

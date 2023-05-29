@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Mongoose Middlewares
-// Pre-Save
+// Pre-Save: Always Encrypt Password before storing in DB
 userSchema.pre("save", async function (next) {
 	// If password wasn't modified, dont encrypt it again
 	if (!this.isModified("password")) return next();
@@ -58,6 +58,16 @@ userSchema.pre("save", async function (next) {
 	this.password = await bcrypt.hash(this.password, 12);
 	this.passwordConfirm = undefined;
 
+	next();
+});
+
+// Pre-Save: Update passwordChangedAt if password was changed
+userSchema.pre("save", async function (next) {
+	// Check if password was modified
+	if (!this.isModified("password") || this.isNew) return next();
+
+	// Otherwise we want to update passwordChangedAt
+	this.passwordChangedAt = Date.now() - 1000;
 	next();
 });
 
