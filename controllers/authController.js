@@ -7,7 +7,8 @@ const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/email");
 
-// Utility Function to create JWT
+// ----------- Utility Functions -------------
+// Sign JWT
 const signJWT = (id) => {
 	return jwt.sign(
 		// Payload
@@ -23,7 +24,22 @@ const signJWT = (id) => {
 	);
 };
 
-// Sign Up New User with credentials
+// Send JWT Response
+const sendJWTResponse = (res, user, code) => {
+	// Log in User with JWT
+	const token = signJWT(user._id);
+	// Response 200: OK
+	res.status(code).json({
+		status: "success",
+		token,
+		data: {
+			user,
+		},
+	});
+};
+
+// ------------- Route Handlers -------------
+// POST Request for Signing Up New User with credentials
 exports.signUp = catchAsync(async (req, res, next) => {
 	const newUser = await User.create({
 		name: req.body.name,
@@ -34,21 +50,12 @@ exports.signUp = catchAsync(async (req, res, next) => {
 		role: req.body.role,
 	});
 
-	// JWT
-	// Creating the jwt for this new user signing up
-	const token = signJWT(newUser._id);
-
+	// Response with JWT sent back indicating user's logged in
 	// 201: Created
-	res.status(201).json({
-		status: "success",
-		token,
-		data: {
-			user: newUser,
-		},
-	});
+	sendJWTResponse(res, newUser, 201);
 });
 
-// Logging In an existing User
+// POST Request for Logging In an existing User
 exports.login = catchAsync(async (req, res, next) => {
 	// -> Get User Sent Credentials
 	const { email, password } = req.body;
@@ -66,30 +73,25 @@ exports.login = catchAsync(async (req, res, next) => {
 		return next(new AppError("Invalid Credentials!", 401));
 	}
 
-	// -> Send JWT to client
-	// Get signed token
-	const token = signJWT(user._id);
-	// Response 200: OK
-	res.status(200).json({
-		status: "success",
-		token,
-	});
+	// Response with JWT sent back indicating user's logged in
+	// 200: OK
+	sendJWTResponse(res, user, 200);
 });
 
 // POST request for forgotten password functionality
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-	// Get User with email from request
+	// -> Get User with Email from request
 	const user = await User.findOne({ email: req.body.email });
 	// 404: Not Found
 	if (!user)
 		return next(new AppError("User with that email id doesn't exist", 404));
 
-	// Generate Random Reset token
+	// -> Generate Random Reset token with Mongoose Instance Method
 	const resetToken = user.createPasswdResetToken();
-	// Reflect changes made in DB, disable validators since only the reset token need to be saved
+	// Reflect changes made in DB, disable validators since only the reset token needs to be saved
 	await user.save({ validateBeforeSave: false });
 
-	// Send it to user's email
+	// -> Send Token to user's email
 	// URL to be sent to user
 	const resetURL = `${req.protocol}://${req.get(
 		"host"
@@ -105,7 +107,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 			message,
 		});
 
-		// Response to client as well
+		// Response to client
 		// 200: OK
 		res.status(200).json({
 			status: "success",
@@ -124,17 +126,19 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 // PATCH request for resetting forgotten password
 exports.resetPassword = catchAsync(async (req, res, next) => {
-	// Get User from resetToken
+	// -> Get User using resetToken specified in URL as parameter
+	// Encrypt Token
 	const hashedToken = crypto
 		.createHash("sha256")
 		.update(req.params.token)
 		.digest("hex");
+	// Get user matching the token, also validate for token expiry
 	const user = await User.findOne({
 		passwordResetToken: hashedToken,
 		passwordResetExpires: { $gt: Date.now() },
 	});
 
-	// User exists & token hasn't expired, reset passsword
+	// -> Reset passsword
 	if (!user)
 		//	400: Bad Request
 		return next(new AppError("Token is invalid or has expired", 400));
@@ -144,20 +148,38 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 	user.passwordResetExpires = undefined;
 	await user.save();
 
-	// Update changedPasswordAt field in DB
-
-	// Log in User with JWT
-	const token = signJWT(user._id);
-	// Response 200: OK
-	res.status(200).json({
-		status: "success",
-		token,
-	});
+	// Response with JWT sent back indicating user's logged in
+	// 200: OK
+	sendJWTResponse(res, user, 200);
 });
 
-// Middleware to protect unaouthorised access to certain routes (Authentication)
+// PATCH Request to update password
+exports.updatePassword = catchAsync(async (req, res, next) => {
+	const { id } = req.user;
+	const { password, passwordConfirm, currentPassword } = req.body;
+
+	// Get User from DB
+	const user = await User.findById(id).select("+password");
+
+	// Verify User with provided password before updating password
+	if (!(await user.passwordCheck(currentPassword, user.password)))
+		// 401: Unauthorized
+		return next(new AppError("Incorrect Current Password", 401));
+
+	// Update Password (Invokes Mongoose Middleware to encrypt before storing in DB)
+	user.password = password;
+	user.passwordConfirm = passwordConfirm;
+	await user.save();
+
+	// Response with JWT sent back indicating user's logged in
+	// 200: OK
+	sendJWTResponse(res, user, 200);
+});
+
+// ------------- Middlewares -------------
+// Middleware to protect unauthorised access to certain routes (Authentication)
 exports.protect = catchAsync(async (req, res, next) => {
-	// Check if token exists in request
+	// -> Check if token exists in request
 	let token;
 	if (
 		req.headers.authorization &&
@@ -174,10 +196,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 			)
 		);
 
-	// Verify the Token
+	// -> Verify the Token
 	const payload = await promisify(jwt.verify)(token, process.env.JWT_PVT_KEY);
 
-	// Check if user still exists
+	// -> Check if user still exists
 	const currUser = await User.findById(payload.id);
 	if (!currUser)
 		return next(
@@ -188,7 +210,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 			)
 		);
 
-	// Check if user changed password after token issuing
+	// -> Check if user changed password after token issuing
 	if (currUser.changedPassword(payload.iat)) {
 		return next(
 			// 401: Unauthorized
@@ -199,7 +221,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 		);
 	}
 
-	// Grant Access to the protected resource requested
+	// -> Grant Access to the protected resource requested
 	req.user = currUser;
 	next();
 });

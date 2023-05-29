@@ -6,6 +6,8 @@ const {
 	login,
 	forgotPassword,
 	resetPassword,
+	updatePassword,
+	protect,
 } = require("./../controllers/authController");
 
 // ---------------Routes---------------------
@@ -17,6 +19,7 @@ const router = express.Router();
 router.post("/sign-up", signUp);
 router.post("/log-in", login);
 router.post("/forgot-password", forgotPassword);
+router.patch("/update-password", protect, updatePassword);
 router.patch("/reset-password/:token", resetPassword);
 
 //

@@ -71,6 +71,7 @@ userSchema.pre("save", async function (next) {
 	next();
 });
 
+// Instance Methods
 // Defining instance method on schema to compare password while logging in an user
 userSchema.methods.passwordCheck = async function (inputPasswd, userPasswd) {
 	// Check the inputted password with actual password from db
