@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -12,10 +13,20 @@ const app = express();
 // Use Morgan if in dev environment
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
+// Middlware for limiting rate of requests to prevent brute force attacks
+const limiter = rateLimit({
+	// Maximum of 100 requests per 1 hour
+	max: 100,
+	// 1 hour window
+	windowMs: 60 * 60 * 1000,
+	// Error message
+	message:
+		"Too many requests from this IP! Please wait an hour before trying again",
+});
+app.use("/api", limiter);
+
 // Middleware to make req.body available for POST requests
 app.use(express.json());
-
-// Middlware for limiting rate of requests to prevent brute force attacks
 
 // ------------- Mounting Routers -------------
 app.use("/api/v1/tours", tourRouter);
