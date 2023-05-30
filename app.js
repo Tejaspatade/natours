@@ -4,28 +4,26 @@ const morgan = require("morgan");
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const globalErrorHandler = require("./controllers/errorController");
-
-// Utility Classes
 const AppError = require("./utils/appError");
 
 const app = express();
 
+// ------------- Global Middlewares -------------
+// Use Morgan if in dev environment
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
-// Middle ware to make req.body available for POST requests
+// Middleware to make req.body available for POST requests
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//   res.status(200).json({ message: 'Hello From Server Side', app: 'Natours' });
-// });
+// Middlware for limiting rate of requests to prevent brute force attacks
 
-// Mounting Routers
+// ------------- Mounting Routers -------------
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 
 // Middleware to handle invalid routes
 app.all("*", (req, res, next) => {
-    next(new AppError(`Cannot Find ${req.originalUrl} on this server`, 404));
+	next(new AppError(`Cannot Find ${req.originalUrl} on this server`, 404));
 });
 
 // Global Error Handling Middleware
