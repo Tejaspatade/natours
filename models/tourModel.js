@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 // const validator = require("validator");
 
-// Tour Schema
+// ------------- Tour Schema -------------
 const tourSchema = new mongoose.Schema(
 	{
 		name: {
