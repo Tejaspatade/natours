@@ -88,6 +88,12 @@ const tourSchema = new mongoose.Schema(
 				day: Number,
 			},
 		],
+		guides: [
+			{
+				type: mongoose.Schema.ObjectId,
+				ref: "User",
+			},
+		],
 	},
 	{
 		toJSON: {
@@ -99,18 +105,28 @@ const tourSchema = new mongoose.Schema(
 	}
 );
 
-// Virtual Properties
+// -------------  Virtual Properties -------------
 tourSchema.virtual("durationWeeks").get(function () {
 	// Used Regular function rather than arrow func bcuz we need this to refer to props from document
 	return this.duration / 7;
 });
 
-// Document Middleware
+// -------------  Document Middleware -------------
 tourSchema.pre("save", function (next) {
 	next();
 });
 
-// Model using Schema
+// ------------- Query Middlewares -------------
+// Populate all referenced users into the document for all find queries
+tourSchema.pre(/^find/, function (next) {
+	this.populate({
+		path: "guides",
+		select: "-__v -passwordChangedAt",
+	});
+	next();
+});
+
+// -------------  Model using Schema -------------
 const Tour = mongoose.model("Tour", tourSchema);
 
 module.exports = Tour;
