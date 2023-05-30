@@ -1,6 +1,10 @@
 const express = require("express");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const mongoSantitize = require("express-mongo-sanitize");
+const xssSantitize = require("xss-clean");
+const hpp = require("hpp");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -10,7 +14,10 @@ const AppError = require("./utils/appError");
 const app = express();
 
 // ------------- Global Middlewares -------------
-// Use Morgan if in dev environment
+// Set Security HTTP Headers
+app.use(helmet());
+
+// Use Morgan if in dev environment for logging HTTP Requests
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 // Middlware for limiting rate of requests to prevent brute force attacks
@@ -25,8 +32,32 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
-// Middleware to make req.body available for POST requests
-app.use(express.json());
+// Make req.body available for POST requests by parsing it as json
+app.use(express.json({ limit: "10kb" }));
+
+// Data Santization
+// NOSQL Query injection Attack
+app.use(mongoSantitize());
+
+// XSS
+app.use(xssSantitize());
+
+// HTTP Parameter Pollution
+app.use(
+	hpp({
+		whitelist: [
+			"duration",
+			"ratingsQuantity",
+			"ratingsAverage",
+			"maxGroupSize",
+			"difficulty",
+			"price",
+		],
+	})
+);
+
+// Serving Static Files on URL
+app.use(express.static(`${__dirname}/public`));
 
 // ------------- Mounting Routers -------------
 app.use("/api/v1/tours", tourRouter);
