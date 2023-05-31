@@ -1,7 +1,8 @@
 const Tour = require("./../models/tourModel");
 const APIFeatures = require("../utils/apiFeatures");
-const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
+const factory = require("./handlerFactory");
 
 // POST Request to add new tour to DB
 exports.createTour = catchAsync(async (req, res, next) => {
@@ -80,20 +81,7 @@ exports.updateTour = catchAsync(async (req, res, next) => {
 });
 
 // DELETE Request to delete tour
-exports.deleteTour = catchAsync(async (req, res, next) => {
-	const tour = await Tour.findByIdAndDelete(req.params.id);
-
-	// Jump to the global Error Handler if no tour is found
-	if (!tour) {
-		return next(new AppError("No Such Tour exists", 404));
-	}
-
-	// 204: No Content
-	res.status(204).json({
-		status: "success",
-		data: null,
-	});
-});
+exports.deleteTour = factory.deleteFactory(Tour);
 
 // MiddleWare to handle the alias top-5-cheap
 exports.aliasTopTours = (req, res, next) => {

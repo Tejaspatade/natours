@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const factory = require("./handlerFactory");
 
 // ------------- Admin Restricted Routes -------------
 // GET Request to retrieve all users from DB
@@ -39,12 +40,7 @@ exports.updateUser = (req, res) => {
 	});
 };
 
-exports.deleteUser = (req, res) => {
-	res.status(500).json({
-		status: "error",
-		message: "Route Not Implemented",
-	});
-};
+exports.deleteUser = factory.deleteFactory(User);
 
 // ------------- Utility Functions -------------
 // Filter out list of fields specified from object passed in

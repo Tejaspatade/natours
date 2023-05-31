@@ -1,5 +1,6 @@
 const Review = require("../models/reviewModel");
 const catchAsync = require("../utils/catchAsync");
+const factory = require("./handlerFactory");
 
 // GET Request to get all reviews
 exports.getAllReviews = catchAsync(async (req, res, next) => {
@@ -19,7 +20,7 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
 	});
 });
 
-// Create a new review of a tour
+// POST Request to Create a new review of a tour
 exports.createReview = catchAsync(async (req, res, next) => {
 	// Check if request came from  POST /tours/:tourId/reviews
 	if (!req.body.tour) req.body.tour = req.params.tourId;
@@ -33,3 +34,6 @@ exports.createReview = catchAsync(async (req, res, next) => {
 		review,
 	});
 });
+
+// DELETE Request t delete a review
+exports.deleteReview = factory.deleteFactory(Review);
