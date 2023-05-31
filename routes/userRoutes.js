@@ -26,7 +26,7 @@ router.patch("/updateMe", protect, updateMe);
 router.patch("/deleteMe", protect, deleteMe);
 
 // Routes for Admin Stuff
-router.route("/").get(getAllUsers).post(createUser);
+router.route("/").get(getAllUsers);
 router.route("/:id").get(getUserById).patch(updateUser).delete(deleteUser);
 
 module.exports = router;

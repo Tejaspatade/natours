@@ -19,6 +19,7 @@ exports.getAllUsers = catchAsync(async (req, res) => {
 	});
 });
 
+//
 exports.getUserById = (req, res) => {
 	res.status(500).json({
 		status: "error",
@@ -26,20 +27,10 @@ exports.getUserById = (req, res) => {
 	});
 };
 
-exports.createUser = (req, res) => {
-	res.status(500).json({
-		status: "error",
-		message: "Route Not Implemented",
-	});
-};
+// PATCH Request to update a user's data
+exports.updateUser = factory.updateFactory(User);
 
-exports.updateUser = (req, res) => {
-	res.status(500).json({
-		status: "error",
-		message: "Route Not Implemented",
-	});
-};
-
+// DELETE Request to delete an user
 exports.deleteUser = factory.deleteFactory(User);
 
 // ------------- Utility Functions -------------

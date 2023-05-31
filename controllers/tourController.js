@@ -4,20 +4,6 @@ const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
 
-// POST Request to add new tour to DB
-exports.createTour = catchAsync(async (req, res, next) => {
-	// Creating a new Tour in MongoDB
-	const newTour = await Tour.create(req.body);
-
-	// 201: Created
-	res.status(201).json({
-		status: "success",
-		data: {
-			tour: newTour,
-		},
-	});
-});
-
 // GET Request to get all tours from tours collection of DB
 exports.getAllTours = catchAsync(async (req, res, next) => {
 	// -> Building Query
@@ -41,44 +27,13 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 // GET Request to get one tour based on its id
-exports.getTourById = catchAsync(async (req, res, next) => {
-	// Populated the Referenced Users which are guides for this tour
-	const tour = await Tour.findById(req.params.id).populate("reviews");
+exports.getTourById = factory.getOneFactory(Tour, { path: "reviews" });
 
-	// Jump to the global Error Handler if no tour is found
-	if (!tour) {
-		return next(new AppError("No Such Tour exists", 404));
-	}
-
-	// 200: OK
-	res.status(200).json({
-		status: "success",
-		data: {
-			tour,
-		},
-	});
-});
+// POST Request to add new tour to DB
+exports.createTour = factory.createFactory(Tour);
 
 // PATCH Request to update a tour's data
-exports.updateTour = catchAsync(async (req, res, next) => {
-	const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-		new: true,
-		runValidators: true,
-	});
-
-	// Jump to the global Error Handler if no tour is found
-	if (!tour) {
-		return next(new AppError("No Such Tour exists", 404));
-	}
-
-	// 200: OK
-	res.status(200).json({
-		status: "success",
-		data: {
-			tour,
-		},
-	});
-});
+exports.updateTour = factory.updateFactory(Tour);
 
 // DELETE Request to delete tour
 exports.deleteTour = factory.deleteFactory(Tour);

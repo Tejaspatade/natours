@@ -3,6 +3,8 @@ const {
 	getAllReviews,
 	createReview,
 	deleteReview,
+	updateReview,
+	setReferenceIds,
 } = require("../controllers/reviewController");
 const { protect, restrict } = require("../controllers/authController");
 
@@ -15,9 +17,8 @@ const router = express.Router({ mergeParams: true });
 router
 	.route("/")
 	.get(getAllReviews)
-	.post(protect, restrict("user"), createReview);
+	.post(protect, restrict("user"), setReferenceIds, createReview);
 
-// DELETE /reviews/:id
-router.route("/:id").delete(deleteReview);
+router.route("/:id").patch(updateReview).delete(deleteReview);
 
 module.exports = router;
