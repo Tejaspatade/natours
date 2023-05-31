@@ -19,11 +19,16 @@ exports.getAllUsers = catchAsync(async (req, res) => {
 	});
 });
 
-//
-exports.getUserById = (req, res) => {
-	res.status(500).json({
-		status: "error",
-		message: "Route Not Implemented",
+// GET Request to get one user by id
+exports.getUserById = factory.getOneFactory(User);
+
+// POST Request to create new user
+exports.createUser = (req, res) => {
+	// 400: Bad Request
+	res.status(200).json({
+		status: "fail",
+		message:
+			"This route is not implemented! Please use /sign-up to create a new user",
 	});
 };
 

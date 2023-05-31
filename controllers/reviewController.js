@@ -20,6 +20,9 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
 	});
 });
 
+// GET Request to get one review by id
+exports.getReviewById = factory.getOneFactory(Review);
+
 // POST Request to Create a new review of a tour
 exports.createReview = factory.createFactory(Review);
 
