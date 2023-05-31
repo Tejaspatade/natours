@@ -3,7 +3,11 @@ const catchAsync = require("../utils/catchAsync");
 
 // GET Request to get all reviews
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-	const reviews = await Review.find();
+	// Checking if request came from GET /tours/:tourId/reviews
+	let filter = {};
+	if (req.params.tourId) filter = { tour: req.params.tourId };
+
+	const reviews = await Review.find(filter);
 
 	// 200: OK
 	res.status(200).json({
@@ -17,6 +21,10 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
 
 // Create a new review of a tour
 exports.createReview = catchAsync(async (req, res, next) => {
+	// Check if request came from  POST /tours/:tourId/reviews
+	if (!req.body.tour) req.body.tour = req.params.tourId;
+	if (!req.body.user) req.body.user = req.user.id;
+
 	const review = await Review.create(req.body);
 
 	// 201: Created

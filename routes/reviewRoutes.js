@@ -5,8 +5,12 @@ const {
 } = require("../controllers/reviewController");
 const { protect, restrict } = require("../controllers/authController");
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
+// GET /reviews
+// GET /tours/:tourId/reviews
+// POST /reviews
+// POST /tours/:tourId/reviews
 router
 	.route("/")
 	.get(getAllReviews)
