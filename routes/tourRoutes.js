@@ -19,22 +19,23 @@ const router = express.Router();
 // --------------- Alias Routes ---------------
 router.route("/top-5-cheap").get(aliasTopTours, getAllTours);
 router.route("/stats").get(getTourStats);
-router.route("/monthly-plan/:year").get(getMonthlyPlan);
+router
+	.route("/monthly-plan/:year")
+	.get(protect, restrict("admin", "guide"), getMonthlyPlan);
 
 // --------------- Normal Routes ---------------
-router.route("/").get(protect, getAllTours).post(createTour);
+router
+	.route("/")
+	.get(getAllTours)
+	.post(protect, restrict("admin", "guide"), createTour);
 router
 	.route("/:id")
 	.get(getTourById)
-	.patch(updateTour)
+	.patch(protect, restrict("admin", "guide"), updateTour)
 	.delete(protect, restrict("admin"), deleteTour);
 
 // --------------- Nested Routes ---------------
 const reviewRouter = require("../routes/reviewRoutes");
 router.use("/:tourId/reviews", reviewRouter);
-// router
-// 	.route("/:tourId/reviews")
-// 	.post(protect, restrict("user"), createReview)
-// 	.get();
 
 module.exports = router;

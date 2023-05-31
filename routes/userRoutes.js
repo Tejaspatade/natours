@@ -15,6 +15,7 @@ const {
 	resetPassword,
 	updatePassword,
 	protect,
+	restrict,
 } = require("./../controllers/authController");
 
 // Instantiating separate Routers
@@ -27,14 +28,19 @@ router.post("/sign-up", signUp);
 router.post("/log-in", login);
 router.post("/forgot-password", forgotPassword);
 router.patch("/reset-password/:token", resetPassword);
-router.patch("/updateMyPassword", protect, updatePassword);
+
+// Protect(Authenticate) all the rest of the routes after this middleware
+router.use(protect);
+
+router.patch("/updateMyPassword", updatePassword);
 
 // --------------------- Current-User Routes ---------------------
-router.get("/me", protect, getMe, getUserById);
-router.patch("/updateMe", protect, updateMe);
-router.patch("/deleteMe", protect, deleteMe);
+router.get("/me", getMe, getUserById);
+router.patch("/updateMe", updateMe);
+router.patch("/deleteMe", deleteMe);
 
 // --------------------- Admin Routes ---------------------
+router.use(restrict("admin"));
 router.route("/").get(getAllUsers);
 router.route("/:id").get(getUserById).patch(updateUser).delete(deleteUser);
 
