@@ -39,7 +39,7 @@ const filterObject = (object, ...fields) => {
 };
 
 // ------------- Individual User Related Routes -------------
-// PATCH Request to update user's info
+// PATCH Request to update current user's info
 exports.updateMe = catchAsync(async (req, res, next) => {
 	// -> Decline Request if user tries to update password
 	if (req.body.password || req.body.passwordConfirm)
@@ -64,7 +64,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 	});
 });
 
-// DELETE Request to Deactivate user's account
+// DELETE Request to deactivate current user's account
 exports.deleteMe = catchAsync(async (req, res, next) => {
 	await User.findByIdAndUpdate(req.user.id, { active: false });
 	// 204: No Content
@@ -72,3 +72,9 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 		status: "success",
 	});
 });
+
+// Middleware to append current user id to params
+exports.getMe = (req, res, next) => {
+	req.params.id = req.user.id;
+	next();
+};

@@ -1,6 +1,13 @@
 const express = require("express");
-// prettier-ignore
-const {getAllUsers, getUserById, updateUser, deleteUser, createUser, updateMe, deleteMe} = require('./../controllers/userController');
+const {
+	getAllUsers,
+	getUserById,
+	updateUser,
+	deleteUser,
+	updateMe,
+	deleteMe,
+	getMe,
+} = require("./../controllers/userController");
 const {
 	signUp,
 	login,
@@ -10,22 +17,24 @@ const {
 	protect,
 } = require("./../controllers/authController");
 
-// ---------------Routes---------------------
 // Instantiating separate Routers
 const router = express.Router();
 
-// Routes for  Users
+// --------------------- Authentication Routes ---------------------
 // Only Implementing Post Request Route, others arent needed for this resource
-// Using protect on routes where user requires to be logged in
+// Note: Using protect on routes where user requires to be logged in
 router.post("/sign-up", signUp);
 router.post("/log-in", login);
 router.post("/forgot-password", forgotPassword);
 router.patch("/reset-password/:token", resetPassword);
 router.patch("/updateMyPassword", protect, updatePassword);
+
+// --------------------- Current-User Routes ---------------------
+router.get("/me", protect, getMe, getUserById);
 router.patch("/updateMe", protect, updateMe);
 router.patch("/deleteMe", protect, deleteMe);
 
-// Routes for Admin Stuff
+// --------------------- Admin Routes ---------------------
 router.route("/").get(getAllUsers);
 router.route("/:id").get(getUserById).patch(updateUser).delete(deleteUser);
 
