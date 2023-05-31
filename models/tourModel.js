@@ -111,10 +111,16 @@ tourSchema.virtual("durationWeeks").get(function () {
 	return this.duration / 7;
 });
 
-// -------------  Document Middleware -------------
-tourSchema.pre("save", function (next) {
-	next();
+// Populate a virtual property based on referenced document in a parent referencing
+tourSchema.virtual("reviews", {
+	ref: "Review",
+	// Foreign Key is the field with id in related document
+	foreignField: "tour",
+	// Primary Key id the field with id in this document
+	localField: "_id",
 });
+
+// -------------  Document Middleware -------------
 
 // ------------- Query Middlewares -------------
 // Populate all referenced users into the document for all find queries

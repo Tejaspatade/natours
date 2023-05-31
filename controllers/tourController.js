@@ -42,7 +42,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 // GET Request to get one tour based on its id
 exports.getTourById = catchAsync(async (req, res, next) => {
 	// Populated the Referenced Users which are guides for this tour
-	const tour = await Tour.findById(req.params.id);
+	const tour = await Tour.findById(req.params.id).populate("reviews");
 
 	// Jump to the global Error Handler if no tour is found
 	if (!tour) {
