@@ -1,24 +1,8 @@
 const Review = require("../models/reviewModel");
-const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
 
 // GET Request to get all reviews
-exports.getAllReviews = catchAsync(async (req, res, next) => {
-	// Checking if request came from GET /tours/:tourId/reviews
-	let filter = {};
-	if (req.params.tourId) filter = { tour: req.params.tourId };
-
-	const reviews = await Review.find(filter);
-
-	// 200: OK
-	res.status(200).json({
-		status: "success",
-		results: reviews.length,
-		data: {
-			reviews,
-		},
-	});
-});
+exports.getAllReviews = factory.getAllFactory(Review);
 
 // GET Request to get one review by id
 exports.getReviewById = factory.getOneFactory(Review);

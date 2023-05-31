@@ -4,24 +4,6 @@ const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
 
 // ------------- Admin Restricted Routes -------------
-// GET Request to retrieve all users from DB
-exports.getAllUsers = catchAsync(async (req, res) => {
-	// Get all Users from users collection of DB
-	const users = await User.find();
-
-	// 200: OK
-	res.status(200).json({
-		status: "success",
-		results: users.length,
-		data: {
-			users,
-		},
-	});
-});
-
-// GET Request to get one user by id
-exports.getUserById = factory.getOneFactory(User);
-
 // POST Request to create new user
 exports.createUser = (req, res) => {
 	// 400: Bad Request
@@ -31,6 +13,12 @@ exports.createUser = (req, res) => {
 			"This route is not implemented! Please use /sign-up to create a new user",
 	});
 };
+
+// GET Request to retrieve all users from DB
+exports.getAllUsers = factory.getAllFactory(User);
+
+// GET Request to get one user by id
+exports.getUserById = factory.getOneFactory(User);
 
 // PATCH Request to update a user's data
 exports.updateUser = factory.updateFactory(User);

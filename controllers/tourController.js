@@ -1,30 +1,9 @@
 const Tour = require("./../models/tourModel");
-const APIFeatures = require("../utils/apiFeatures");
-const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const factory = require("./handlerFactory");
 
 // GET Request to get all tours from tours collection of DB
-exports.getAllTours = catchAsync(async (req, res, next) => {
-	// -> Building Query
-	const features = new APIFeatures(Tour.find(), req.query)
-		.filter()
-		.sort()
-		.chooseFields()
-		.paginate();
-
-	// -> Executing Query
-	const tours = await features.query;
-
-	// 200: OK Response
-	res.status(200).send({
-		status: "success",
-		results: tours.length,
-		data: {
-			tours,
-		},
-	});
-});
+exports.getAllTours = factory.getAllFactory(Tour);
 
 // GET Request to get one tour based on its id
 exports.getTourById = factory.getOneFactory(Tour, { path: "reviews" });

@@ -1,5 +1,33 @@
+const APIFeatures = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+
+// Factory Method to return GET request handler for all documents from collection
+exports.getAllFactory = (Model) =>
+	catchAsync(async (req, res, next) => {
+		// -> Checking if request came from GET /tours/:tourId/reviews
+		let filter = {};
+		if (req.params.tourId) filter = { tour: req.params.tourId };
+
+		// -> Building Query
+		const features = new APIFeatures(Model.find(filter), req.query)
+			.filter()
+			.sort()
+			.chooseFields()
+			.paginate();
+
+		// -> Executing Query
+		const document = await features.query;
+
+		// 200: OK Response
+		res.status(200).send({
+			status: "success",
+			results: document.length,
+			data: {
+				data: document,
+			},
+		});
+	});
 
 // Factory Method to return GET request handler for only one resource
 exports.getOneFactory = (Model, populateOptions) =>
