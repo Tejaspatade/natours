@@ -105,6 +105,9 @@ const tourSchema = new mongoose.Schema(
 	}
 );
 
+// ------------- Indexes -------------
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+
 // -------------  Virtual Properties -------------
 tourSchema.virtual("durationWeeks").get(function () {
 	// Used Regular function rather than arrow func bcuz we need this to refer to props from document

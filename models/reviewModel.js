@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Tour = require("./tourModel");
 
 // ------------- Review Schema -------------
 const reviewSchema = new mongoose.Schema(
@@ -34,12 +35,41 @@ const reviewSchema = new mongoose.Schema(
 	}
 );
 
+// ------------- Document Middlewares -------------
+// Post_save Middleware to be run after every new review is saved to DB
+reviewSchema.post("save", function () {
+	// Invoke the static method to update ratings average to Tours collection
+	// Using this.constructor to use Review before it gets instantiated
+	this.constructor.calcAverageRating(this.tour);
+});
+
 // -------------  Query Middlewares -------------
 reviewSchema.pre(/^find/, function (next) {
 	this.populate({ path: "user", select: "name photo" });
 	// this.populate({ path: "tour", select: "name" });
 	next();
 });
+
+// ------------- Static Methods -------------
+reviewSchema.statics.calcAverageRating = async function (tourId) {
+	// Mongoose Aggregate Pipeling to match based on same tourId & calculate their sum & average
+	const stats = await this.aggregate([
+		{
+			$match: { tour: tourId },
+			$group: {
+				_id: "$tour",
+				nRating: { $sum: 1 },
+				avgRating: { $avg: "$rating" },
+			},
+		},
+	]);
+
+	// Update Tour with that id to reflect changed rating stats
+	await Tour.findByIdAndUpdate(tourId, {
+		ratingsQuantity: stats[0].nRating,
+		ratingsAverage: stats[0].avgRating,
+	});
+};
 
 // -------------  Model using Schema -------------
 const Review = mongoose.model("Review", reviewSchema);
