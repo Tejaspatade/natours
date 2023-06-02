@@ -13,6 +13,7 @@ const reviewRouter = require("./routes/reviewRoutes");
 const viewRouter = require("./routes/viewRoutes");
 const globalErrorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
+const { addSlug } = require("./controllers/viewController");
 
 const app = express();
 

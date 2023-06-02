@@ -95,6 +95,7 @@ const tourSchema = new mongoose.Schema(
 				ref: "User",
 			},
 		],
+		slug: { type: String, unique: true },
 	},
 	{
 		toJSON: {
@@ -126,6 +127,13 @@ tourSchema.virtual("reviews", {
 });
 
 // -------------  Document Middleware -------------
+tourSchema.pre("save", function (next) {
+	if (!this.slug) {
+		const slug = slugify(this.name, { lower: true });
+		this.slug = slug;
+	}
+	next();
+});
 
 // ------------- Query Middlewares -------------
 // Populate all referenced users into the document for all find queries
