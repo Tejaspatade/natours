@@ -17,16 +17,16 @@ const DB = process.env.DATABASE.replace(
 	process.env.DATABASE_PASSWORD
 );
 
-// mongoose
-//     .connect(DB, {
-//         useNewUrlParser: true,
-//         useCreateIndex: true,
-//         useFindAndModify: false,
-//         useUnifiedTopology: true,
-//     })
-//     .then((conn) => {
-//         console.log("Database Connection Successful");
-//     });
+mongoose
+	.connect(DB, {
+		useNewUrlParser: true,
+		useCreateIndex: true,
+		useFindAndModify: false,
+		useUnifiedTopology: true,
+	})
+	.then((conn) => {
+		console.log("Database Connection Successful");
+	});
 
 // Initialise Server
 const port = 3000;
