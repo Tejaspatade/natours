@@ -1,4 +1,104 @@
 extends base
 
+mixin overview-box(text, label, icon)
+    .overview-box__detail
+        svg.overview-box__icon
+            use(xlink:href=`/img/icons.svg#icon-${icon}`)
+        span.overview-box__label= label
+        span.overview-box__text= text 
+
+mixin review-card(r)
+    .reviews__card
+        .reviews__avatar
+            img.reviews__avatar-img(src=`/img/users/${r.user.photo}`, alt=`${r.user.name}`)
+            h6.reviews__user= r.user.name
+        p.reviews__text= r.review
+        .reviews__rating
+            each star in [1, 2, 3, 4, 5]
+                - if (star <= r.rating)
+                    svg.reviews__star.reviews__star--active
+                        use(xlink:href='/img/icons.svg#icon-star')
+                - else
+                    svg.reviews__star.reviews__star--inactive
+                        use(xlink:href='/img/icons.svg#icon-star')
+
 block content
-    h1 Tour Details
+    //- HEADER
+    section.section-header
+        .header__hero
+            .header__hero-overlay &nbsp;
+            img.header__hero-img(src=`/img/tours/${tour.imageCover}`, alt='Tour 5')
+
+        .heading-box
+            h1.heading-primary
+                span= `${tour.name} Tour`
+            .heading-box__group
+                .heading-box__detail
+                    svg.heading-box__icon
+                        use(xlink:href='/img/icons.svg#icon-clock')
+                    span.heading-box__text= `${tour.duration} days`
+                .heading-box__detail
+                    svg.heading-box__icon
+                        use(xlink:href='/img/icons.svg#icon-map-pin')
+                    span.heading-box__text= tour.startLocation.description
+
+    //- DESCRIPTION
+    section.section-description
+        .overview-box
+            div
+                .overview-box__group
+                    h2.heading-secondary.ma-bt-lg Quick facts
+                    
+                    +overview-box(tour.startDates[0].toLocaleString('en-us', { month: "long", year: "numeric"}), "Next date", "calendar")
+                    +overview-box(tour.difficulty, "Difficulty", "trending-up")
+                    +overview-box(`${tour.maxGroupSize} people`, "Participants", "trending-up")
+                    +overview-box(`${tour.ratingsAverage} / 5`, "Rating", "star")
+
+                .overview-box__group
+                    h2.heading-secondary.ma-bt-lg Your tour guides
+                    
+                    each guide in tour.guides
+                        .overview-box__detail
+                            img.overview-box__img(src=`/img/users/${guide.photo}`, alt=`${guide.name}`)
+
+                            - if (guide.role === 'lead-guide')
+                                span.overview-box__label= 'Lead Guide'
+                            - if (guide.role === 'guide')
+                                span.overview-box__label= 'Tour Guide'
+                            span.overview-box__text= guide.name
+                    
+
+        .description-box
+            h2.heading-secondary.ma-bt-lg= `About ${tour.name} Tour`
+            - const paras = tour.description.split("\n")
+            each para in paras
+                p.description__text= para 
+            
+    //- TOUR IMAGES
+    section.section-pictures
+        each img, i in tour.images
+            .picture-box
+                img.picture-box__img(src=`/img/tours/${img}`, alt=`${tour.name} ${i + 1}` class=`picture-box__img--${i + 1}`)
+
+    //- MAP
+    section.section-map
+        #map
+
+    //- REVIEWS
+    section.section-reviews
+        .reviews
+            each r in tour.reviews
+                +review-card(r)
+
+                
+    //- CTA
+    section.section-cta
+        .cta
+            .cta__img.cta__img--logo
+                img(src='/img/logo-white.png', alt='Natours logo')
+            img.cta__img.cta__img--1(src='/img/tour-5-2.jpg', alt='')
+            img.cta__img.cta__img--2(src='/img/tour-5-1.jpg', alt='')
+            .cta__content
+                h2.heading-secondary What are you waiting for?
+                p.cta__text 10 days. 1 adventure. Infinite memories. Make it yours today!
+                button.btn.btn--green.span-all-rows Book tour now!
