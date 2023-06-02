@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
@@ -13,6 +14,9 @@ const globalErrorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
 
 const app = express();
+
+app.set("view engine", "pug");
+app.set("views", path.join(__dirname, "views"));
 
 // ------------- Global Middlewares -------------
 // Set Security HTTP Headers
@@ -61,6 +65,15 @@ app.use(
 app.use(express.static(`${__dirname}/public`));
 
 // ------------- Mounting Routers -------------
+// Frontend Routes
+app.get("/", (req, res) => {
+	res.status(200).render("base", {
+		tour: "The Forest Hiker",
+		user: "Tejas Patade",
+	});
+});
+
+// API Routes
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
