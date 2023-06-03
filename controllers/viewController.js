@@ -34,3 +34,19 @@ exports.getTour = catchAsync(async (req, res) => {
 		tour,
 	});
 });
+
+// Request Handler for Login Page
+exports.getLoginPage = (req, res, next) => {
+	// -> Render this template as a response
+	res.status(200).render("login", {
+		title: "Login",
+	});
+};
+
+// Request Handler for Sign-Up Page
+exports.getLoginPage = (req, res, next) => {
+	// -> Render this template as a response
+	res.status(200).render("login", {
+		title: "Login",
+	});
+};
