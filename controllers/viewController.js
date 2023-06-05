@@ -44,9 +44,9 @@ exports.getLoginPage = (req, res, next) => {
 };
 
 // Request Handler for Sign-Up Page
-exports.getLoginPage = (req, res, next) => {
+exports.getSignupPage = (req, res, next) => {
 	// -> Render this template as a response
-	res.status(200).render("login", {
-		title: "Login",
+	res.status(200).render("signup", {
+		title: "Sign Up",
 	});
 };
