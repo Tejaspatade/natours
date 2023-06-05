@@ -39,7 +39,7 @@ exports.getTour = catchAsync(async (req, res) => {
 exports.getLoginPage = (req, res, next) => {
 	// -> Render this template as a response
 	res.status(200).render("login", {
-		title: "Login",
+		title: "Log In",
 	});
 };
 

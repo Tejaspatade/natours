@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const mongoSantitize = require("express-mongo-sanitize");
 const xssSantitize = require("xss-clean");
 const hpp = require("hpp");
+const cors = require("cors");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -23,6 +24,9 @@ app.set("views", path.join(__dirname, "views"));
 // Set Security HTTP Headers
 app.use(helmet());
 
+//
+app.use(cors());
+
 // Use Morgan if in dev environment for logging HTTP Requests
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
@@ -37,6 +41,15 @@ const limiter = rateLimit({
 		"Too many requests from this IP! Please wait an hour before trying again",
 });
 app.use("/api", limiter);
+
+//
+app.use((req, res, next) => {
+	res.setHeader(
+		"Content-Security-Policy",
+		"script-src 'self' https://cdnjs.cloudflare.com"
+	);
+	next();
+});
 
 // Make req.body available for POST requests by parsing it as json
 app.use(express.json({ limit: "10kb" }));
