@@ -4,30 +4,27 @@
 name: Node.js CI/CD
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    push:
+        branches: ["master"]
+    pull_request:
+        branches: ["master"]
 
 jobs:
-  build: 
+    build:
+        runs-on: self-hosted
 
-    runs-on: self-hosted
+        strategy:
+            matrix:
+                node-version: [18.x]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: |
-        touch .env
-        echo "${{ secrets.PROD_ENV_FILE }}" > .env
-      
+        steps:
+            - uses: actions/checkout@v3
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "npm"
+            - run: npm ci
+            - run: npm build --if present
+            - run: pm2 restart server.js
