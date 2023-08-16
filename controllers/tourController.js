@@ -26,7 +26,8 @@ exports.getTour = catchAsync(async (req, res) => {
 		path: "reviews",
 		fields: "review rating user",
 	});
-	res.status(200).json("tour", {
+
+	res.status(200).json({
 		status: "success",
 		data: { tour },
 	});
