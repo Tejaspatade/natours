@@ -41,10 +41,12 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 // CORS
 app.use(
 	cors({
-		origin:'*', 
-		credentials:true,            //access-control-allow-credentials:true
-		optionSuccessStatus:200,
-		"Access-Control-Allow-Origin":'*',
+		origin: "*",
+		methods: ["*"],
+		credentials: true,
+		allowedHeaders: ["*"],
+		optionsSuccessStatus: 200,
+		preflightContinue: true,
 	})
 );
 
@@ -97,7 +99,7 @@ app.use(
 );
 
 // 3) ROUTES
-app.use("/", viewRouter);
+app.use("/api/v1/", viewRouter);
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
