@@ -30,6 +30,7 @@ app.use(
 			"Accept",
 			"Authorization",
 		],
+		optionsSuccessStatus: 200,
 		preflightContinue: true,
 	})
 );
