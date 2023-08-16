@@ -21,37 +21,37 @@ const app = express();
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 // Configure proxy middleware
-const corsProxy = createProxyMiddleware({
-	target: "http://3.110.132.186", // Replace with the actual remote server URL
-	changeOrigin: true,
-	onProxyRes: (proxyRes, req, res) => {
-		// Add CORS headers to the response
-		res.header("Access-Control-Allow-Origin", "*");
-		res.header("Access-Control-Allow-Methods", "GET, POST");
-		res.header(
-			"Access-Control-Allow-Headers",
-			"Origin, X-Requested-With, Content-Type, Accept, Authorization"
-		);
-	},
-});
+// const corsProxy = createProxyMiddleware({
+// 	target: "http://3.110.132.186", // Replace with the actual remote server URL
+// 	changeOrigin: true,
+// 	onProxyRes: (proxyRes, req, res) => {
+// 		// Add CORS headers to the response
+// 		res.header("Access-Control-Allow-Origin", "*");
+// 		res.header("Access-Control-Allow-Methods", "GET, POST");
+// 		res.header(
+// 			"Access-Control-Allow-Headers",
+// 			"Origin, X-Requested-With, Content-Type, Accept, Authorization"
+// 		);
+// 	},
+// });
 
-// Use the proxy middleware for specific routes
-app.use("/tour", corsProxy);
+// // Use the proxy middleware for specific routes
+// app.use("/tour", corsProxy);
 
 // CORS
-// app.use(
-// 	cors({
-// 		origin: "*",
-// 		methods: ["*"],
-// 		credentials: true,
-// 		allowedHeaders: ["*"],
-// 		optionsSuccessStatus: 200,
-// 		preflightContinue: true,
-// 	})
-// );
+app.use(
+	cors({
+		origin: "*",
+		methods: ["*"],
+		credentials: true,
+		allowedHeaders: ["*"],
+		optionsSuccessStatus: 200,
+		preflightContinue: true,
+	})
+);
 
 // Enabling PreFlight CORS
-// app.options("*", cors());
+app.options("*", cors());
 
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
