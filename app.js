@@ -79,7 +79,7 @@ app.use(
 );
 
 // 3) ROUTES
-app.use("/api/v1", viewRouter);
+app.use("/api/v1/", viewRouter);
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
