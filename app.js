@@ -44,6 +44,7 @@ app.use(
 		origin:'*', 
 		credentials:true,            //access-control-allow-credentials:true
 		optionSuccessStatus:200,
+		"Access-Control-Allow-Origin":'*',
 	})
 );
 
