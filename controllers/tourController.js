@@ -18,6 +18,20 @@ exports.updateTour = factory.updateFactory(Tour);
 // DELETE Request to delete tour
 exports.deleteTour = factory.deleteFactory(Tour);
 
+// Request Handler for individual Tour Page
+exports.getTour = catchAsync(async (req, res) => {
+	// -> Get tours data from DB
+	const slug = req.params.slug;
+	const tour = await Tour.findOne({ slug }).populate({
+		path: "reviews",
+		fields: "review rating user",
+	});
+	res.status(200).json("tour", {
+		status: "success",
+		data: { tour },
+	});
+});
+
 // Get Top 5 Cheapest Tours
 exports.aliasTopTours = (req, res, next) => {
 	req.query.limit = "5";

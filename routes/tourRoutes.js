@@ -11,6 +11,7 @@ const {
 	getMonthlyPlan,
 	getToursWithin,
 	getDistances,
+	getTour,
 } = require("./../controllers/tourController");
 const { protect, restrict } = require("../controllers/authController");
 
@@ -29,6 +30,7 @@ router
 	.get(protect, restrict("admin", "guide"), getMonthlyPlan);
 
 // --------------- Normal Routes ---------------
+router.route("/tour/:slug").get(protect, getTour);
 router
 	.route("/")
 	.get(getAllTours)
