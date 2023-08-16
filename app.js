@@ -23,7 +23,13 @@ app.use(
 		origin: "http://127.0.0.1:5173",
 		methods: ["*"],
 		credentials: true,
-		allowedHeaders: ["*"],
+		allowedHeaders: [
+			"Origin",
+			"X-Requested-With",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+		],
 		optionsSuccessStatus: 200,
 		preflightContinue: true,
 	})
