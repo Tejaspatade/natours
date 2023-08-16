@@ -17,9 +17,11 @@ const reviewRouter = require("./routes/reviewRoutes");
 const viewRouter = require("./routes/viewRoutes");
 
 const app = express();
+
+// CORS
 app.use(
 	cors({
-		origin: "http://127.0.0.1:5173", // Update this to your frontend's URL
+		origin: "http://127.0.0.1:5173",
 		credentials: true,
 		allowedHeaders: [
 			"Origin",
@@ -28,8 +30,12 @@ app.use(
 			"Accept",
 			"Authorization",
 		],
+		preflightContinue: true,
 	})
 );
+
+// Enabling PreFlight CORS
+app.options("*", cors());
 
 // 1) GLOBAL MIDDLEWARES
 // Serving static files
@@ -75,9 +81,6 @@ app.use(
 		],
 	})
 );
-
-// Enabling PreFlight CORS
-app.options("*", cors());
 
 // 3) ROUTES
 app.use("/", viewRouter);
