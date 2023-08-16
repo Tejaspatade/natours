@@ -41,12 +41,9 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 // CORS
 app.use(
 	cors({
-		origin: "*",
-		methods: ["*"],
-		credentials: true,
-		allowedHeaders: ["*"],
-		optionsSuccessStatus: 200,
-		preflightContinue: true,
+		origin:'*', 
+		credentials:true,            //access-control-allow-credentials:true
+		optionSuccessStatus:200,
 	})
 );
 
