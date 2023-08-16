@@ -24,13 +24,7 @@ app.use(
 		origin: "*",
 		methods: ["*"],
 		credentials: true,
-		allowedHeaders: [
-			"Origin",
-			"X-Requested-With",
-			"Content-Type",
-			"Accept",
-			"Authorization",
-		],
+		allowedHeaders: ["*"],
 		optionsSuccessStatus: 200,
 		preflightContinue: true,
 	})
