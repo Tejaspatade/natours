@@ -1,4 +1,4 @@
-<h1 align="center">Natours - Tours Management API</h1>
+<h1 align="center">Natours - Tours App API</h1>
 
 <p align="center">
   <img src="https://github.com/Tejaspatade/natours/assets/70337689/c8f92c47-979c-4002-a44e-5c3baae96846" alt="Natours Logo">
