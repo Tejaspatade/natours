@@ -1,6 +1,10 @@
-# Natours - Tours Management API
+<h1 align="center">Natours - Tours Management API</h1>
 
-![Natours Logo](https://github.com/Tejaspatade/natours/assets/70337689/c8f92c47-979c-4002-a44e-5c3baae96846)
+<p align="center">
+  <img src="https://github.com/Tejaspatade/natours/assets/70337689/c8f92c47-979c-4002-a44e-5c3baae96846" alt="Natours Logo">
+</p>
+
+---
 
 **Natours** is a backend application developed with Node.js, Express, MongoDB, and Mongoose. It provides a complete set of RESTful API routes for managing tours offered by a company. The application also implements JWT-based user authentication to ensure secure access to protected routes.
 
@@ -58,11 +62,11 @@
 
 ### Deployed on AWS EC2
 
-The Natours API is hosted on an AWS EC2 instance and configured with CI/CD from this repository using Github Actions. You can access the API using the following URL:
+The Natours API is hosted on an **AWS EC2** instance from this repository. You can access the API using the following URL:
 
-[http://3.110.132.186](http://3.110.132.186)
+[https://free.natours.live/api/v1/](https://free.natours.live/api/v1/)
 
-Note: Also comprises of NGINX serving as a proxy server relaying the HTTP Requests to the backend runnning behind this proxy firewall.
+Note: Also comprises of **NGINX** serving as a proxy server relaying the HTTP Requests to the backend runnning behind this proxy firewall. Also configured to a **custom domain**, and **SSL encrypted certificate** for access over **HTTPS**.
 
 ### API Documentation
 
